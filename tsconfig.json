@@ -8,6 +8,9 @@
     "types": [
       "node"
     ],
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "moduleResolution": "node16",
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
   }
