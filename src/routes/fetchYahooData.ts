@@ -4,14 +4,15 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const API_KEY = process.env.YAHOO_API_KEY
-const AREA_CODE = '27'
 
-const fetchData = async () => {
+const fetchData = async (lat: string, lng: string, radius: string = '1000') => {
   try {
     const response = await axios.get('https://map.yahooapis.jp/search/local/V1/localSearch', {
       params: {
         appid: API_KEY,
-        ac: AREA_CODE,
+        lat: lat,
+        lon: lng,
+        dist: radius,
         output: 'json',
         sort: 'dist',
         results: 50
