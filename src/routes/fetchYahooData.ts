@@ -1,12 +1,10 @@
 import axios from 'axios'
-import * as fs from 'fs'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
 
 const API_KEY = process.env.YAHOO_API_KEY
-const AREA_CODE = '27' 
-const OUTPUT_FILE = './osaka_buildings.csv'
+const AREA_CODE = '27'
 
 const fetchData = async () => {
   try {
@@ -15,34 +13,35 @@ const fetchData = async () => {
         appid: API_KEY,
         ac: AREA_CODE,
         output: 'json',
-        sort: 'dist', // 距離順でソート
-        results: 50 // 最大取得件数
+        sort: 'dist',
+        results: 50
       }
     })
 
     const data = response.data.Feature
+    const jsonData = data.map((item: any) => {
+        console.log('Property.Genre:', item.Property.Genre) 
 
-    // CSVデータ生成
-    let csvData = 'Name,Address,Lat,Lng,GenreCode,GenreName\n'
-    data.forEach((item: any) => {
-      const name = item.Name.replace(/,/g, '')
-      const address = item.Property.Address.replace(/,/g, '')
-      const lat = item.Geometry.Coordinates.split(',')[1]
-      const lng = item.Geometry.Coordinates.split(',')[0]
+        // Genreが空でない場合に最初の要素を取得
+        const genre = item.Property.Genre && item.Property.Genre.length > 0 ? item.Property.Genre[0] : null
+        const genreCode = genre ? genre.Code : 'N/A' // 存在しない場合のデフォルト値
+        const genreName = genre ? genre.Name : 'N/A' // 存在しない場合のデフォルト値
 
-      const genreCode = item.Property.Genre?.Code || ''
-      const genreName = item.Property.Genre?.Name || ''
+        return {
+          name: item.Name,
+          address: item.Property.Address,
+          lat: item.Geometry.Coordinates.split(',')[1],
+          lng: item.Geometry.Coordinates.split(',')[0],
+          genreCode, 
+          genreName  
+        }
+      })
 
-      csvData += `${name},${address},${lat},${lng},${genreCode},${genreName}\n`
-    })
-
-
-    fs.writeFileSync(OUTPUT_FILE, csvData)
-    console.log(`データをCSVファイル(${OUTPUT_FILE})に保存しました！`)
-
+    return jsonData
   } catch (error) {
     console.error('データ取得に失敗しました:', error)
+    throw error
   }
 }
 
-fetchData()
+export default fetchData
