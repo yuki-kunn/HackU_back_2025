@@ -14,8 +14,10 @@ landmarkRouter.get('/', async (c) => {
       return c.json({ error: 'Latitude and longitude are required' }, 400)
     }
 
+    // Yahooからデータ取得してDBに保存
     const jsonData = await fetchData(lat, lng, radius)
-    return c.json(jsonData)
+
+    return c.json({ message: 'Landmarks fetched and saved successfully', landmarks: jsonData })
   } catch (error) {
     console.error('Error:', error)
     return c.json({ error: 'Failed to fetch landmarks' }, 500)
