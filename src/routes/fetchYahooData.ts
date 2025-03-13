@@ -1,5 +1,6 @@
 import axios from 'axios'
 import * as dotenv from 'dotenv'
+import { supabase } from '../utils/supabase.ts'
 
 dotenv.config()
 
@@ -25,8 +26,8 @@ const fetchData = async (lat: string, lng: string, radius: string = '1000') => {
 
         // Genreが空でない場合に最初の要素を取得
         const genre = item.Property.Genre && item.Property.Genre.length > 0 ? item.Property.Genre[0] : null
-        const genreCode = genre ? genre.Code : 'N/A' // 存在しない場合のデフォルト値
-        const genreName = genre ? genre.Name : 'N/A' // 存在しない場合のデフォルト値
+        const genreCode = genre ? genre.Code : 'N/A'
+        const genreName = genre ? genre.Name : 'N/A'
 
         return {
           name: item.Name,
@@ -37,6 +38,25 @@ const fetchData = async (lat: string, lng: string, radius: string = '1000') => {
           genreName  
         }
       })
+
+    // 取得データをDBに保存（重複時は更新）
+    const { data: savedData, error } = await supabase
+      .from('landmarks')
+      .upsert(jsonData.map((item: { name: any; address: any; lat: any; lng: any; genreCode: any; genreName: any }) => ({
+        name: item.name,
+        address: item.address,
+        latitude: item.lat,
+        longitude: item.lng,
+        genre_code: item.genreCode,
+        genre_name: item.genreName
+      })), { onConflict: 'latitude,longitude' })
+
+    if (error) {
+      console.error('データ保存に失敗しました:', error)
+      throw error
+    }
+
+    console.log('保存成功:', savedData)
 
     return jsonData
   } catch (error) {

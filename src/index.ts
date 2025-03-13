@@ -1,8 +1,12 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import landmarkRouter from './routes/landmark.ts'
+import landmarkRouter from './routes/landmarkRouter.ts'
 import questRouter from './routes/quest.ts'
+import fetchLandmarks from './routes/fetchLandmarks.ts';
+import acceptQuest from './routes/acceptQuest.ts';
+import getQuests from './routes/getQuests.ts';
+import deleteQuest from './routes/deleteQuest.ts';
 
 const app = new Hono()
 
@@ -18,6 +22,10 @@ app.use('/*', cors({
 
 app.route('/landmark', landmarkRouter)
 app.route('/quest', questRouter)
+app.route('/landmarks', fetchLandmarks);
+app.route('/quests', acceptQuest);
+app.route('/quests', getQuests);
+app.route('/quests', deleteQuest);
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
