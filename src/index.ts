@@ -1,9 +1,20 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import landmarkRouter from './routes/landmark.ts'
 import questRouter from './routes/quest.ts'
 
 const app = new Hono()
+
+// CORSミドルウェアを追加
+app.use('/*', cors({
+  origin: ['http://localhost:5173', 'http://localhost:4173'], // フロントエンドのURL
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowHeaders: ['Content-Type'],
+  exposeHeaders: ['Content-Length'],
+  maxAge: 600,
+  credentials: true
+}))
 
 app.route('/landmark', landmarkRouter)
 app.route('/quest', questRouter)
