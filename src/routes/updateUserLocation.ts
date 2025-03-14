@@ -40,7 +40,7 @@ app.post('/', async (c) => {
   }
 });
 
-// レスポンスに全てのランドマークを含めるバージョン
+// レスポンスに半径1km以内のランドマークを含めるバージョン
 app.post('/with-landmarks', async (c) => {
   try {
     const { user_id, latitude, longitude } = await c.req.json();
@@ -70,10 +70,14 @@ app.post('/with-landmarks', async (c) => {
       // エラーがあっても処理を続行
     }
 
-    // すべてのランドマークを取得
+    // 現在地から半径1km以内のランドマークを取得
+    // PostgreSQLの地理空間計算で距離フィルタリング
     const { data: landmarks, error: landmarksError } = await supabase
-      .from('landmarks')
-      .select('*');
+      .rpc('get_landmarks_within_distance', { 
+        p_latitude: latitude, 
+        p_longitude: longitude, 
+        p_distance_km: 1.0 // 1km
+      });
 
     if (landmarksError) {
       console.error('Error fetching landmarks:', landmarksError);
