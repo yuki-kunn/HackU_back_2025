@@ -70,13 +70,13 @@ app.post('/with-landmarks', async (c) => {
       // エラーがあっても処理を続行
     }
 
-    // 現在地から半径1km以内のランドマークを取得
+    // 現在地から半径5km以内のランドマークを取得
     // PostgreSQLの地理空間計算で距離フィルタリング
     const { data: landmarks, error: landmarksError } = await supabase
       .rpc('get_landmarks_within_distance', { 
         p_latitude: latitude, 
         p_longitude: longitude, 
-        p_distance_km: 1.0 // 1km
+        p_distance_km: 40 // 1から5に変更
       });
 
     if (landmarksError) {
